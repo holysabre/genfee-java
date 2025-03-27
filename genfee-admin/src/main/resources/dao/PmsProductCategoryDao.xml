@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pange.genfee.dao.PmsProductCategoryDao">
+    <resultMap id="listWithChildren" type="com.pange.genfee.dto.PmsProductCategoryWithChildrenItem" extends="com.pange.genfee.mapper.PmsProductCategoryMapper.BaseResultMap">
+        <collection property="children" resultMap="com.pange.genfee.mapper.PmsProductCategoryMapper.BaseResultMap" columnPrefix="child_"></collection>
+    </resultMap>
+    <select id="listWithChildren" resultType="com.pange.genfee.dto.PmsProductCategoryWithChildrenItem">
+        select
+            prc.id,
+            prc.name,
+            prcc.id child_id,
+            prcc.name child_name
+        from pms_product_category prc
+        left join pms_product_category prcc on prc.id = prcc.parent_id
+        where prc.parent_id=0
+        order by prc.sort
+    </select>
+</mapper>
