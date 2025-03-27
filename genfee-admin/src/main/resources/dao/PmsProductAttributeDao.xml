@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pange.genfee.dao.PmsProductAttributeDao">
+    <select id="getProductAttrInfo" resultType="com.pange.genfee.dto.PmsProductAttrInfo">
+        SELECT
+            ppcar.product_attribute_id attributeId,
+            ppcar.product_category_id attributeCategoryId
+        FROM pms_product_category_attribute_relation ppcar
+        WHERE ppcar.product_category_id = #{product_category_id}
+    </select>
+</mapper>
