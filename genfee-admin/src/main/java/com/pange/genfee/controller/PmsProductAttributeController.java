@@ -5,7 +5,6 @@ import com.pange.genfee.dto.PmsProductAttrInfo;
 import com.pange.genfee.dto.PmsProductAttributeParam;
 import com.pange.genfee.model.PmsProductAttribute;
 import com.pange.genfee.service.PmsProductAttributeService;
-import com.pange.genfee.service.PmsProductAttributeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

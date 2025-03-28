@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pange.genfee.dao.PmsProductDao">
+    <resultMap id="getUpdateInfoMap" type="com.pange.genfee.dto.PmsProductResult" extends="com.pange.genfee.mapper.PmsProductMapper.ResultMapWithBLOBs">
+        <result column="cateParentId" jdbcType="BIGINT" property="cateParentId" />
+        <collection property="skuStockList" columnPrefix="sku_" resultMap="com.pange.genfee.mapper.PmsSkuStockMapper.BaseResultMap" />
+    </resultMap>
+    <select id="getUpdateInfo" resultMap="getUpdateInfoMap">
+        SELECT
+            p.*,
+            ss.id sku_id,ss.product_id sku_product_id,ss.sku_code sku_sku_code,ss.price sku_price,ss.stock sku_stock,ss.low_stock sku_low_stock,ss.pic sku_pic,ss.sale sku_sale, ss.promotion_price sku_promotion_price, ss.lock_stock sku_lock_stock, ss.sp_data stock_sp_data,
+            pav.id attribute_id,pav.product_id attribute_product_id,pav.value attribute_value
+            FROM pms_product p
+        LEFT JOIN pms_sku_stock ss ON ss.product_id = p.id
+        LEFT JOIN pms_product_attribute_value pav on pav.product_id = p.id
+        WHERE p.id = #{id}
+    </select>
+</mapper>
