@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pange.genfee.portal.dao.PortalProductDao">
+    <resultMap id="getCartProductMap" type="com.pange.genfee.portal.domain.CartProduct" extends="com.pange.genfee.mapper.PmsProductMapper.BaseResultMap">
+        <collection property="attributeList" columnPrefix="attr_" resultMap="com.pange.genfee.mapper.PmsProductAttributeMapper.BaseResultMap" />
+        <collection property="skuStockList" columnPrefix="sku_" resultMap="com.pange.genfee.mapper.PmsSkuStockMapper.BaseResultMap" />
+    </resultMap>
+    <select id="getCartProduct" resultMap="getCartProductMap">
+        SELECT
+            p.id id,
+            p.`name` name,
+            p.sub_title subTitle,
+            p.price price,
+            p.pic pic,
+            p.product_attribute_category_id productAttributeCategoryId,
+            p.stock stock,
+            pa.id attr_id,
+            pa.`name` attr_name,
+            ss.id sku_id,
+            ss.sku_code sku_code,
+            ss.price sku_price,
+            ss.stock sku_stock,
+            ss.pic sku_pic
+        FROM pms_product p
+        LEFT JOIN pms_product_attribute pa ON pa.product_attribute_category_id = p.product_attribute_category_id
+        LEFT JOIN pms_sku_stock ss ON ss.product_id = p.id
+        WHERE p.id = #{productId}
+        AND pa.type = 0
+        ORDER BY pa.sort desc
+    </select>
+    <resultMap id="getPromotionProductListMap" type="com.pange.genfee.portal.domain.PromotionProduct" extends="com.pange.genfee.mapper.PmsProductMapper.BaseResultMap">
+        <collection property="skuStockList" columnPrefix="sku_" resultMap="com.pange.genfee.mapper.PmsSkuStockMapper.BaseResultMap">
+        </collection>
+        <collection property="productLadderList" columnPrefix="ladder" resultMap="com.pange.genfee.mapper.PmsProductLadderMapper.BaseResultMap">
+        </collection>
+        <collection property="productFullReductionList" columnPrefix="full_" resultMap="com.pange.genfee.mapper.PmsProductFullReductionMapper.BaseResultMap">
+        </collection>
+    </resultMap>
+    <select id="getPromotionProductList" resultMap="getPromotionProductListMap">
+        SELECT
+            p.*,
+            ss.id sku_id,
+            ss.price sku_price,
+            ss.sku_code sku_code,
+            ss.promotion_price sku_promotion_price,
+            ss.stock sku_stock,
+            ss.lock_stock sku_lock_stock,
+            pl.id ladder_id,
+            pl.count ladder_count,
+            pl.discount ladder_discount,
+            pfr.id full_id,
+            pfr.full_price full_price,
+            pfr.reduce_price full_reduce_price
+        FROM pms_product p
+        LEFT JOIN pms_sku_stock ss ON ss.product_id=p.id
+        LEFT JOIN pms_product_ladder pl ON pl.product_id=p.id
+        LEFT JOIN pms_product_full_reduction pfr on pfr.product_id=p.id
+        WHERE p.id IN
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+</mapper>
