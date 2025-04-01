@@ -1,18 +1,23 @@
 package com.pange.genfee.portal.service;
 
-import com.pange.genfee.portal.domain.MemberDetail;
+import com.pange.genfee.model.UmsMember;
+import com.pange.genfee.portal.domain.MemberDetails;
 import com.pange.genfee.portal.domain.MemberRegisterParam;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface UmsMemberService {
     void generateAuthCode(String phone);
 
     boolean verifyAuthCode(String authCode, String phone);
 
-    MemberDetail loadByUsername(String username);
+    UserDetails loadUserByUsername(String username);
 
     UmsMemberCacheService getCacheService();
 
     String login(String username, String password);
 
     void register(MemberRegisterParam param);
+
+    //获取当前登录的用户
+    UmsMember getCurrentMember();
 }

@@ -20,7 +20,7 @@ public class GenfeeSecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         //获取登录用户信息
-        return username -> memberService.loadByUsername(username);
+        return username -> memberService.loadUserByUsername(username);
     }
 
 }

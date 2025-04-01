@@ -13,10 +13,10 @@ import java.util.Collection;
  * @description
  * @date {2024/3/19}
  */
-public class MemberDetail implements UserDetails {
+public class MemberDetails implements UserDetails {
     private final UmsMember umsMember;
 
-    public MemberDetail(UmsMember umsMember){
+    public MemberDetails(UmsMember umsMember){
         this.umsMember = umsMember;
     }
 

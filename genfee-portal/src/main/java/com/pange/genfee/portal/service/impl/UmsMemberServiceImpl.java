@@ -3,14 +3,13 @@ package com.pange.genfee.portal.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.pange.genfee.common.exception.Asserts;
-import com.pange.genfee.common.service.RedisService;
 import com.pange.genfee.mapper.UmsMemberLevelMapper;
 import com.pange.genfee.mapper.UmsMemberMapper;
 import com.pange.genfee.model.UmsMember;
 import com.pange.genfee.model.UmsMemberExample;
 import com.pange.genfee.model.UmsMemberLevel;
 import com.pange.genfee.model.UmsMemberLevelExample;
-import com.pange.genfee.portal.domain.MemberDetail;
+import com.pange.genfee.portal.domain.MemberDetails;
 import com.pange.genfee.portal.domain.MemberRegisterParam;
 import com.pange.genfee.portal.service.UmsMemberCacheService;
 import com.pange.genfee.portal.service.UmsMemberService;
@@ -20,10 +19,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +51,10 @@ public class UmsMemberServiceImpl implements UmsMemberService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Value("${redis.key.authCode}")
+    private String REDIS_KEY_PREFIX_AUTH_CODE;
+    @Value("${redis.expire.authCode}")
+    private Long AUTH_CODE_EXPIRE_SECONDS;
 
     @Override
     public void generateAuthCode(String phone) {
@@ -61,8 +69,12 @@ public class UmsMemberServiceImpl implements UmsMemberService {
     }
 
     @Override
-    public MemberDetail loadByUsername(String username) {
-        return new MemberDetail(getMemberByUsername(username));
+    public UserDetails loadUserByUsername(String username) {
+        UmsMember member = getByUsername(username);
+        if(member != null){
+            return new MemberDetails(member);
+        }
+        throw new UsernameNotFoundException("用户名或密码错误");
     }
 
     @Override
@@ -70,7 +82,7 @@ public class UmsMemberServiceImpl implements UmsMemberService {
         return SpringUtil.getBean(UmsMemberCacheService.class);
     }
 
-    private UmsMember getMemberByUsername(String username){
+    private UmsMember getByUsername(String username){
         UmsMember member = getCacheService().getMember(username);
         if(member !=null){
             return member;
@@ -90,14 +102,14 @@ public class UmsMemberServiceImpl implements UmsMemberService {
         String token = null;
 
         try {
-            MemberDetail memberDetail = loadByUsername(username);
-            boolean isMatch = passwordEncoder.matches(password,memberDetail.getPassword());
+            UserDetails memberDetails = loadUserByUsername(username);
+            boolean isMatch = passwordEncoder.matches(password, memberDetails.getPassword());
             if(!isMatch){
                 throw new BadCredentialsException("密码错误");
             }
-            UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken.authenticated(memberDetail,null,memberDetail.getAuthorities());
+            UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken.authenticated(memberDetails,null, memberDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            token = jwtTokenUtil.generateToken(memberDetail);
+            token = jwtTokenUtil.generateToken(memberDetails);
         }catch (AuthenticationException e){
             LOGGER.info("登录失败: {}",e.getMessage());
         }
@@ -134,6 +146,14 @@ public class UmsMemberServiceImpl implements UmsMemberService {
     }
 
     @Override
+    public UmsMember getCurrentMember() {
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        Authentication auth = ctx.getAuthentication();
+        MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
+        return memberDetails.getUmsMember();
+    }
+
+    @Override
     public boolean verifyAuthCode(String authCode, String phone){
         if(StrUtil.isEmpty(authCode)){
             return false;
@@ -144,4 +164,5 @@ public class UmsMemberServiceImpl implements UmsMemberService {
         }
         return realAuthCode.equals(authCode);
     }
+
 }
