@@ -163,6 +163,11 @@ public class UmsMemberServiceImpl implements UmsMemberService {
     }
 
     @Override
+    public UmsMember getById(Long id) {
+        return memberMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
     public boolean verifyAuthCode(String authCode, String phone){
         if(StrUtil.isEmpty(authCode)){
             return false;
