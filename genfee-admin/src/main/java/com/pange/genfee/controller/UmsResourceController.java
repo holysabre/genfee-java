@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/resource")
-@Api(tags = {"UmsResourceController","资源管理"})
+@Api(tags = {"资源管理"})
 public class UmsResourceController {
 
     @Autowired

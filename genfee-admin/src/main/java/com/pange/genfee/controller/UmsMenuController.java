@@ -19,7 +19,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/menu")
-@Api(tags = {"UmsMenuController","菜单管理"})
+@Api(tags = {"菜单管理"})
 public class UmsMenuController {
 
     @Autowired
