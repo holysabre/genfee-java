@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pange.genfee.dao.OmsOrderDao">
+    <update id="delivery">
+        UPDATE oms_order SET 
+        delivery_company = CASE id = 
+        <foreach collection="deliveryParamList" item="deliveryParam">
+            WHEN #{deliveryParam.orderId} THEN #{deliveryParam.deliveryCompany}
+        </foreach>
+        END,
+        delivery_sn = CASE id =
+        <foreach collection="deliveryParamList" item="deliveryParam">
+            WHEN #{deliveryParam.orderId} THEN #{deliveryParam.deliverySn}
+        </foreach>
+        END,
+        delivery_time = NOW(),
+        status = 2
+        WHERE id IN
+        <foreach collection="deliveryParamList" item="deliveryParam" open="(" close=")" separator=",">
+            #{deliveryParam.orderId}
+        </foreach>
+        AND status = 1
+    </update>
+    <select id="getList" resultMap="com.pange.genfee.mapper.OmsOrderMapper.BaseResultMap">
+        SELECT * FROM oms_order
+        WHERE delete_status = 0
+        <if test="queryParam.orderSn != null and queryParam.orderSn != ''">
+            AND order_sn = #{queryParam.orderSn}
+        </if>
+        <if test="queryParam.receiverKeyword != null and queryParam.receiverKeyword != ''">
+            AND (
+            receiver_name LIKE concat("%",#{queryParam.receiverKeyword},"%")
+            OR receiver_phone LIKE concat("%",#{queryParam.receiverKeyword},"%")
+            )
+        </if>
+        <if test="queryParam.status != null and queryParam.status != ''">
+            AND status = #{queryParam.status}
+        </if>
+        <if test="queryParam.orderType != null and queryParam.orderType != ''">
+            AND order_type = #{queryParam.orderType}
+        </if>
+        <if test="queryParam.sourceType != null and queryParam.sourceType != ''">
+            AND source_type = #{queryParam.sourceType}
+        </if>
+        <if test="queryParam.createTime != null and queryParam.createTime != ''">
+            AND create_time LIKE concat(#{queryParam.createTime},"%")
+        </if>
+        ORDER BY create_time desc
+    </select>
+    <resultMap id="detailMap" type="com.pange.genfee.dto.OmsOrderDetail" extends="com.pange.genfee.mapper.OmsOrderMapper.BaseResultMap">
+        <collection property="orderItemList" columnPrefix="oi_" resultMap="com.pange.genfee.mapper.OmsOrderItemMapper.BaseResultMap">
+        </collection>
+        <collection property="historyList" columnPrefix="oh_" resultMap="com.pange.genfee.mapper.OmsOrderOperateHistoryMapper.BaseResultMap">
+        </collection>
+    </resultMap>
+    <select id="getDetail" resultMap="detailMap">
+        SELECT o.*,
+               oi.id item_id,
+               oi.product_id item_product_id,
+               oi.product_sn item_product_sn,
+               oi.product_pic item_product_pic,
+               oi.product_name item_product_name,
+               oi.product_brand item_product_brand,
+               oi.product_price item_product_price,
+               oi.product_quantity item_product_quantity,
+               oi.product_attr item_product_attr,
+               oh.id history_id,
+               oh.operate_man history_operate_man,
+               oh.create_time history_create_time,
+               oh.order_status history_order_status,
+               oh.note history_note
+        FROM
+            oms_order o
+        LEFT JOIN oms_order_item oi on o.id = oi.order_id
+        LEFT JOIN oms_order_operate_history oh on oi.order_id = oh.order_id
+        WHERE o.id = #{orderId}
+        ORDER BY oi.id, oh.create_time DESC
+    </select>
+</mapper>
