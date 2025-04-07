@@ -14,6 +14,7 @@
         <module>genfee-admin</module>
         <module>genfee-portal</module>
         <module>genfee-security</module>
+        <module>genfee-search</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
