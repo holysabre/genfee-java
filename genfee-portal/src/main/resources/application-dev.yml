@@ -19,7 +19,7 @@ spring:
     mongodb:
       host: localhost
       port: 27017
-      database: genfee-port
+      database: genfee
   redis:
     host: localhost # Redis服务器地址
     database: 0 # Redis数据库索引（默认为0）

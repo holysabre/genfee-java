@@ -19,7 +19,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/sso")
-@Api(tags = {"UmsMemberController","用户管理"})
+@Api(tags = {"用户管理"})
 public class UmsMemberController {
 
     @Autowired
