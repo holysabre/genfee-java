@@ -36,7 +36,7 @@ spring:
 logging:
   level:
     root: info
-    com.macro.mall: debug
+    com.pange.genfee: debug
 
 logstash:
   host: localhost

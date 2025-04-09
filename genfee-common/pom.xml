@@ -12,8 +12,8 @@
     <artifactId>genfee-common</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>pmall-common</name>
-    <description>pmall-common for pmall</description>
+    <name>genfee-common</name>
+    <description>genfee-common for genfee</description>
 
     <dependencies>
         <dependency>

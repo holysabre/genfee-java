@@ -11,8 +11,8 @@
 
     <artifactId>genfee-mbg</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>pmall-mbg</name>
-    <description>pmall-mbg for pmall</description>
+    <name>genfee-mbg</name>
+    <description>genfee-mbg for genfee</description>
     <packaging>jar</packaging>
 
     <dependencies>
